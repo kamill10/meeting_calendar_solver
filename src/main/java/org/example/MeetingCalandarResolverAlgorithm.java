@@ -10,16 +10,16 @@ import java.util.List;
 @Setter
 @Getter
 public class MeetingCalandarResolverAlgorithm {
-    private int meetingLenght;
+    private int meetingLength;
     private TimeRange workingHours1;
     private TimeRange workingHours2;
     private PlannedMeeting plannedMeeting1;
     private PlannedMeeting plannedMeeting2;
 
-    public MeetingCalandarResolverAlgorithm(int meetingLenght, TimeRange workingHours1, TimeRange workingHours2
+    public MeetingCalandarResolverAlgorithm(int meetingLength, TimeRange workingHours1, TimeRange workingHours2
             , PlannedMeeting plannedMeeting1, PlannedMeeting plannedMeeting2) {
         checkIfPlannedMeetingInWorkingHours(plannedMeeting1, plannedMeeting2, workingHours1, workingHours2);
-        this.meetingLenght = meetingLenght;
+        this.meetingLength = meetingLength;
         this.workingHours1 = workingHours1;
         this.workingHours2 = workingHours2;
         this.plannedMeeting1 = plannedMeeting1;
@@ -55,17 +55,17 @@ public class MeetingCalandarResolverAlgorithm {
         LocalTime start = takeLaterStartWorkingHour(workingHours1, workingHours2);
         LocalTime end = takeSoonerEndWorkingHour(workingHours1, workingHours2);
         //if we consider that working hours could begin with 1 minutes difference
-        //only if working hours are with 30 min interval we can consider that the minutestoAdd is eqal 30
+        //only if working hours are with 30 min interval we can consider that the minutesToAdd is equal 30
         //This solution will always work but is not optimal
-        int minutestoAdd = 1;
-        TimeRange timeRangeLoop = new TimeRange(start, start.plusMinutes(minutestoAdd));
+        int minutesToAdd = 1;
+        TimeRange timeRangeLoop = new TimeRange(start, start.plusMinutes(minutesToAdd));
         List<TimeRange> possibleTimeRanges = new ArrayList<>();
         while (!timeRangeLoop.getEnd().isAfter(end) || timeRangeLoop.getEnd().equals(end)) {
             if (isAnyPlannedMeetingListNotOverlapsWithRange(timeRangeLoop, plannedMeeting1) &&
                     isAnyPlannedMeetingListNotOverlapsWithRange(timeRangeLoop, plannedMeeting2)) {
                 possibleTimeRanges.add(timeRangeLoop);
             }
-            timeRangeLoop = new TimeRange(timeRangeLoop.getStart().plusMinutes(minutestoAdd), timeRangeLoop.getEnd().plusMinutes(minutestoAdd));
+            timeRangeLoop = new TimeRange(timeRangeLoop.getStart().plusMinutes(minutesToAdd), timeRangeLoop.getEnd().plusMinutes(minutesToAdd));
         }
         return possibleTimeRanges;
     }
@@ -114,7 +114,7 @@ public class MeetingCalandarResolverAlgorithm {
         int startMinutes = timeRange.getStart().getHour() * 60 + timeRange.getStart().getMinute();
         int endMinutes = timeRange.getEnd().getHour() * 60 + timeRange.getEnd().getMinute();
         int duration = endMinutes - startMinutes;
-        return duration >= meetingLenght;
+        return duration >= meetingLength;
     }
 }
 
