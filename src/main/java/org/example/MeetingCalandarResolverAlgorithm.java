@@ -60,6 +60,8 @@ public class MeetingCalandarResolverAlgorithm {
         int minutesToAdd = 1;
         TimeRange timeRangeLoop = new TimeRange(start, start.plusMinutes(minutesToAdd));
         List<TimeRange> possibleTimeRanges = new ArrayList<>();
+        //In the loop we will check if the time range(from later started working hour to sooner ended working hour)
+        // is not overlapping with any of the planned meetings
         while (!timeRangeLoop.getEnd().isAfter(end) || timeRangeLoop.getEnd().equals(end)) {
             if (isAnyPlannedMeetingListNotOverlapsWithRange(timeRangeLoop, plannedMeeting1) &&
                     isAnyPlannedMeetingListNotOverlapsWithRange(timeRangeLoop, plannedMeeting2)) {
@@ -74,8 +76,7 @@ public class MeetingCalandarResolverAlgorithm {
         //method to merge the possible time ranges
         List<TimeRange> possibleTimeRanges = getPossibleTimeRanges();
         List<TimeRange> mergedTimeRanges = new ArrayList<>();
-
-        TimeRange currentRange = possibleTimeRanges.get(0);
+        TimeRange currentRange = possibleTimeRanges.getFirst();
         for (int i = 1; i < possibleTimeRanges.size(); i++) {
             TimeRange nextRange = possibleTimeRanges.get(i);
             if (currentRange.getEnd().equals(nextRange.getStart())) {
@@ -103,14 +104,15 @@ public class MeetingCalandarResolverAlgorithm {
                 timeRange.getStart().isBefore(workingHours1.getStart()) || timeRange.getEnd().isAfter(workingHours1.getEnd()))) {
             throw new IllegalArgumentException("Planned meetings for the first person are not entirely within working hours");
         }
-
         // Check if all meetings in plannedMeeting2 are within workingHours2
         if (plannedMeeting2.getMeetings().stream().anyMatch(timeRange ->
                 timeRange.getStart().isBefore(workingHours2.getStart()) || timeRange.getEnd().isAfter(workingHours2.getEnd()))) {
             throw new IllegalArgumentException("Planned meetings for the second person are not entirely within working hours");
         }
     }
+
     private boolean isValidTimeRange(TimeRange timeRange) {
+        //time range must be longer or equal meeting lenght
         int startMinutes = timeRange.getStart().getHour() * 60 + timeRange.getStart().getMinute();
         int endMinutes = timeRange.getEnd().getHour() * 60 + timeRange.getEnd().getMinute();
         int duration = endMinutes - startMinutes;

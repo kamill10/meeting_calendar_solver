@@ -9,8 +9,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        TimeRange timeRange = new TimeRange(LocalTime.of(9, 32), LocalTime.of(10, 0));
+        TimeRange timeRange1 = new TimeRange(LocalTime.of(9, 31), LocalTime.of(10, 30));
+        System.out.println(TimeRangeOverlapChecker.isTimeRangesOverlap(timeRange, timeRange1));
         PlannedMeeting plannedMeeting1 = new PlannedMeeting();
-        plannedMeeting1.addMeeting(new TimeRange(LocalTime.of(9, 2), LocalTime.of(10, 30)));
+        plannedMeeting1.addMeeting(new TimeRange(LocalTime.of(9, 0), LocalTime.of(10, 30)));
         plannedMeeting1.addMeeting(new TimeRange(LocalTime.of(12, 0), LocalTime.of(13, 0)));
         plannedMeeting1.addMeeting(new TimeRange(LocalTime.of(16, 0), LocalTime.of(18, 0)));
         PlannedMeeting plannedMeeting2 = new PlannedMeeting();
@@ -20,7 +23,7 @@ public class Main {
         plannedMeeting2.addMeeting(new TimeRange(LocalTime.of(16, 0), LocalTime.of(17, 0)));
 
         TimeRange workingHours1 = new TimeRange(LocalTime.of(9, 0), LocalTime.of(19, 55));
-        TimeRange workingHours2 = new TimeRange(LocalTime.of(9, 0), LocalTime.of(18, 30));
+        TimeRange workingHours2 = new TimeRange(LocalTime.of(10, 0), LocalTime.of(18, 30));
         int meetingLenght = 30;
         MeetingCalandarResolverAlgorithm meetingCalandarResolverAlgorithm = new MeetingCalandarResolverAlgorithm
                 (meetingLenght, workingHours1, workingHours2, plannedMeeting1, plannedMeeting2);
