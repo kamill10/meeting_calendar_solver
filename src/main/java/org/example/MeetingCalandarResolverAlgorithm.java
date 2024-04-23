@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Setter
@@ -58,41 +59,37 @@ public class MeetingCalandarResolverAlgorithm {
         //only if working hours are with 30 min interval we can consider that the minutesToAdd is equal 30
         //This solution will always work but is not optimal
         int minutesToAdd = 1;
-        TimeRange timeRangeLoop = new TimeRange(start, start.plusMinutes(minutesToAdd));
+        TimeRange timeRangeLoop = new TimeRange(start, start.plusMinutes(meetingLength));
         List<TimeRange> possibleTimeRanges = new ArrayList<>();
-        //In the loop we will check if the time range(from later started working hour to sooner ended working hour)
-        // is not overlapping with any of the planned meetings
         while (!timeRangeLoop.getEnd().isAfter(end) || timeRangeLoop.getEnd().equals(end)) {
             if (isAnyPlannedMeetingListNotOverlapsWithRange(timeRangeLoop, plannedMeeting1) &&
                     isAnyPlannedMeetingListNotOverlapsWithRange(timeRangeLoop, plannedMeeting2)) {
                 possibleTimeRanges.add(timeRangeLoop);
             }
-            timeRangeLoop = new TimeRange(timeRangeLoop.getStart().plusMinutes(minutesToAdd), timeRangeLoop.getEnd().plusMinutes(minutesToAdd));
+            LocalTime nextStart = timeRangeLoop.getStart().plusMinutes(minutesToAdd);
+            timeRangeLoop = new TimeRange(nextStart, nextStart.plusMinutes(meetingLength));
         }
         return possibleTimeRanges;
     }
 
     public List<TimeRange> getPossibleTimeRangesJoined() {
-        //method to merge the possible time ranges
+        // Method to merge the possible time ranges
         List<TimeRange> possibleTimeRanges = getPossibleTimeRanges();
         List<TimeRange> mergedTimeRanges = new ArrayList<>();
         TimeRange currentRange = possibleTimeRanges.getFirst();
         for (int i = 1; i < possibleTimeRanges.size(); i++) {
             TimeRange nextRange = possibleTimeRanges.get(i);
-            if (currentRange.getEnd().equals(nextRange.getStart())) {
-                // If the current range ends where the next range starts, merge them
+            if (possibleTimeRanges.get(i-1).getStart().plusMinutes(1).equals(nextRange.getStart())) {
+                // If the end time of the current range is exactly one minute before the start time of the next range, merge them
                 currentRange = new TimeRange(currentRange.getStart(), nextRange.getEnd());
-            } else {
-                // If they are not adjacent, add the current range to the result list
-
-                if(isValidTimeRange(currentRange)){
+                if(i == possibleTimeRanges.size() - 1){
                     mergedTimeRanges.add(currentRange);
                 }
+            } else {
+                // If they are not exactly adjacent, add the current range to the result list
+                mergedTimeRanges.add(currentRange);
                 currentRange = nextRange; // Move to the next range
             }
-        }
-        if(isValidTimeRange(currentRange)){
-            mergedTimeRanges.add(currentRange);
         }
         return mergedTimeRanges;
     }
@@ -111,12 +108,5 @@ public class MeetingCalandarResolverAlgorithm {
         }
     }
 
-    private boolean isValidTimeRange(TimeRange timeRange) {
-        //time range must be longer or equal meeting lenght
-        int startMinutes = timeRange.getStart().getHour() * 60 + timeRange.getStart().getMinute();
-        int endMinutes = timeRange.getEnd().getHour() * 60 + timeRange.getEnd().getMinute();
-        int duration = endMinutes - startMinutes;
-        return duration >= meetingLength;
-    }
 }
 
